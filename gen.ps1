@@ -1,0 +1,1 @@
+Write-Host (-join ((1..128) | ForEach-Object { [char]((65..90) + (97..122) + (48..57) | Get-Random) }))
