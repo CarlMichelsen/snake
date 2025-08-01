@@ -3,12 +3,13 @@ import {useParams} from "react-router";
 import {Connection, type ILobbyClientMethods} from "../util/websocket/Connection.ts";
 import type {ChatMessage} from "../model/snake/chatMessage.ts";
 import type {User} from "../model/user.ts";
+import {delay} from "../util/delay.ts";
 
 const Lobby: FC = () => {
     // const auth = useAppSelector((state) => state.auth);
     const { id } = useParams<{ id: string }>();
-
-    useEffect(() => {
+    
+    const connect = async () => {
         const clientMethods: ILobbyClientMethods = {
             ReceiveMessage: async (chatMessage: ChatMessage)=> {
                 console.log("ReceiveMessage", chatMessage);
@@ -23,10 +24,19 @@ const Lobby: FC = () => {
                 console.log("UserLeft", user);
             },
         };
+
+        await Connection.instance.start(clientMethods);
         
-        Connection.instance.start(clientMethods)
-            .then(() => Connection.instance.CreateLobby()
-                .then(() => Connection.instance.SendMessage("hello")));
+        await delay(2000);
+
+        const lobby = await Connection.instance.CreateLobby();
+        console.log("lobby", lobby);
+        
+        await Connection.instance.SendMessage("hello");
+    }
+
+    useEffect(() => {
+        connect();
     }, []);
     
     return <p>Game: {id}</p>

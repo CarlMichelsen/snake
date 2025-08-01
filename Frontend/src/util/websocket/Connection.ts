@@ -1,4 +1,4 @@
-﻿import {HubConnection, HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
+﻿import {HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel} from "@microsoft/signalr";
 import {hostUrl} from "../endpoints.ts";
 import type {Lobby} from "../../model/snake/lobby.ts";
 import type {ChatMessage} from "../../model/snake/chatMessage.ts";
@@ -12,6 +12,10 @@ export class Connection implements ILobbyServerMethods {
             .withUrl(hostUrl() + '/lobby')
             .configureLogging(LogLevel.Information)
             .build();
+    }
+    
+    public get status(): HubConnectionState {
+        return this.conn.state
     }
 
     CreateLobby(): Promise<Lobby | null> {
