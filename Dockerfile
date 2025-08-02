@@ -9,8 +9,8 @@ EXPOSE 8080
 FROM node:22-alpine AS frontend
 ARG FRONTEND_PROJECT_NAME
 WORKDIR /frontend
-COPY ./${FRONTEND_PROJECT_NAME}/package*.json ./
-RUN npm ci --only=production
+COPY ./${FRONTEND_PROJECT_NAME}/package*.json .
+RUN npm ci
 COPY ./${FRONTEND_PROJECT_NAME} .
 RUN npm run build
 
