@@ -2,19 +2,20 @@
 
 namespace Domain.Snake;
 
-public class Lobby(User creator, TimeProvider timeProvider)
+public class Lobby(UserConnection creatorConnection, TimeProvider timeProvider)
 {
     public Guid Id { get; } = Guid.CreateVersion7();
     
-    public User LobbyLeader { get; set; } = creator;
+    public Guid LobbyLeaderId { get; set; } = creatorConnection.User.Id;
 
     public List<ChatMessage> Messages { get; } = [];
     
-    public ConcurrentDictionary<Guid, User> Users { get; } = new([new KeyValuePair<Guid, User>(creator.Id, creator)]);
+    public ConcurrentDictionary<Guid, UserConnection> Users { get; } =
+        new([new KeyValuePair<Guid, UserConnection>(creatorConnection.User.Id, creatorConnection)]);
 
     public void Join(User user)
     {
-        if (!this.Users.TryAdd(user.Id, user))
+        if (!this.Users.TryAdd(user.Id, new UserConnection { Active = true, User = user }))
         {
             throw new SnakeException("User already joined");
         }
@@ -30,14 +31,14 @@ public class Lobby(User creator, TimeProvider timeProvider)
 
     public ChatMessage SendMessage(Guid senderUserId, string content)
     {
-        if (!this.Users.TryGetValue(senderUserId, out var user))
+        if (!this.Users.TryGetValue(senderUserId, out var userConnection))
         {
             throw new SnakeException("User was not found when sending message");
         }
 
         var message = new ChatMessage(
             Id: Guid.CreateVersion7(),
-            Sender: user,
+            Sender: userConnection.User,
             Content: content,
             TimeStamp: timeProvider.GetUtcNow());
         

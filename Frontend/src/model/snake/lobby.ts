@@ -2,8 +2,13 @@
 import type {ChatMessage} from "./chatMessage.ts";
 
 export type Lobby = {
-    Id: string,
-    LobbyLeader: User,
-    Messages: ChatMessage[],
-    Users: { [key: string]: User }
+    id: string,
+    lobbyLeaderId: string,
+    messages: ChatMessage[],
+    users: { [key: string]: UserConnection }
+}
+
+export type UserConnection = {
+    user: User,
+    active: boolean,
 }

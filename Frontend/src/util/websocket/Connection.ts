@@ -1,11 +1,11 @@
-﻿import {HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel} from "@microsoft/signalr";
+﻿import {HubConnection, HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {hostUrl} from "../endpoints.ts";
 import type {Lobby} from "../../model/snake/lobby.ts";
 import type {ChatMessage} from "../../model/snake/chatMessage.ts";
 import type {User} from "../../model/user.ts";
 
 export class Connection implements ILobbyServerMethods {
-    private conn: HubConnection;
+    private readonly conn: HubConnection;
     
     private constructor() {
         this.conn = new HubConnectionBuilder()
@@ -14,34 +14,37 @@ export class Connection implements ILobbyServerMethods {
             .build();
     }
     
-    public get status(): HubConnectionState {
-        return this.conn.state
+    public get connection() {
+        return this.conn;
     }
-
-    CreateLobby(): Promise<Lobby | null> {
+    
+    createLobby(): Promise<Lobby | null> {
         return this.conn.invoke("CreateLobby");
     }
-    JoinLobby(lobbyId: string): Promise<Lobby | null> {
+    joinLobby(lobbyId: string): Promise<Lobby | null> {
         return this.conn.invoke("JoinLobby", lobbyId);
     }
-    LeaveCurrentLobby(): Promise<void> {
+    leaveCurrentLobby(): Promise<void> {
         return this.conn.invoke("LeaveCurrentLobby");
     }
-    SendMessage(content: string): Promise<void> {
+    sendMessage(content: string): Promise<void> {
         return this.conn.invoke("SendMessage", content);
     }
     
     public async start(clientListener: ILobbyClientMethods) {
+        const titleCase = (str: string): string =>
+            str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        
         if (this.conn.state == "Disconnected") {
             await this.conn.start();
             (Object.keys(clientListener) as (keyof ILobbyClientMethods)[]).forEach(key => {
-                this.conn.on(key, clientListener[key])
+                this.conn.on(titleCase(key), clientListener[key])
             });
         }
     }
 
-    public async stop() {
-        await this.conn.stop();
+    public stop() {
+        this.conn.stop();
     }
     
     private static ins: Connection|null = null;
@@ -56,21 +59,25 @@ export class Connection implements ILobbyServerMethods {
 }
 
 export interface ILobbyServerMethods {
-    CreateLobby(): Promise<Lobby|null>;
+    createLobby(): Promise<Lobby|null>;
 
-    JoinLobby(lobbyId: string): Promise<Lobby|null>;
+    joinLobby(lobbyId: string): Promise<Lobby|null>;
 
-    LeaveCurrentLobby(): Promise<void>;
+    leaveCurrentLobby(): Promise<void>;
 
-    SendMessage(content: string): Promise<void>;
+    sendMessage(content: string): Promise<void>;
 }
 
 export interface ILobbyClientMethods {
-    ReceiveMessage(chatMessage: ChatMessage): Promise<void>;
+    setLobby(lobby: Lobby): void;
 
-    SetMessages(messages: ChatMessage[]): Promise<void>;
+    userActive(userId: string, userActive: boolean): void;
+    
+    receiveMessage(chatMessage: ChatMessage): void;
 
-    UserJoined(user: User): Promise<void>;
+    setMessages(messages: ChatMessage[]): void;
 
-    UserLeft(user: User): Promise<void>;
+    userJoined(user: User): void;
+
+    userLeft(user: User): void;
 }

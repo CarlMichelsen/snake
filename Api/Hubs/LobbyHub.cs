@@ -19,10 +19,10 @@ public class LobbyHub(
 {
     private const string SessionKey = "session";
     
-    public Session Session => this.Context.Items[SessionKey] as Session 
-                              ?? throw new NullReferenceException("Session does not exist in Context.Items");
+    private Session Session => this.Context.Items[SessionKey] as Session 
+                               ?? throw new NullReferenceException("Session does not exist in Context.Items");
 
-    public ILobbyClientMethods? LobbyGroup => this.Session.Lobby is not null
+    private ILobbyClientMethods? LobbyGroup => this.Session.Lobby is not null
         ? this.Clients.Groups(this.Session.Lobby.Id.ToString())
         : null;
     
@@ -36,6 +36,10 @@ public class LobbyHub(
             await this.Groups.AddToGroupAsync(
                 this.Context.ConnectionId,
                 this.Session.Lobby.Id.ToString());
+            await this.Clients.Caller.SetLobby(this.Session.Lobby.ToDto());
+            
+            this.Session.Lobby.Users[this.Session.User.Id].Active = true;
+            await this.LobbyGroup!.UserActive(this.Session.User.Id, true);
         }
         
         logger.LogInformation(
@@ -44,7 +48,7 @@ public class LobbyHub(
         await base.OnConnectedAsync();
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         logger.LogInformation(
             "OnDisconnectedAsync {Username}",
@@ -55,8 +59,14 @@ public class LobbyHub(
                 exception,
                 "OnDisconnectedAsync");
         }
-        
-        return base.OnDisconnectedAsync(exception);
+
+        if (this.Session.Lobby is not null)
+        {
+            this.Session.Lobby.Users[this.Session.User.Id].Active = false;
+            await this.LobbyGroup!.UserActive(this.Session.User.Id, false);
+        }
+
+        await base.OnDisconnectedAsync(exception);
     }
 
     public async Task<LobbyDto?> CreateLobby()
@@ -66,7 +76,7 @@ public class LobbyHub(
             await this.LeaveLobby();
         }
         
-        var lobby = lobbyContainer.AddLobby(new Lobby(this.Session.User, timeProvider));
+        var lobby = lobbyContainer.AddLobby(new Lobby(new UserConnection { Active = true, User = this.Session.User }, timeProvider));
         if (lobby is null)
         {
             return null;
@@ -75,14 +85,28 @@ public class LobbyHub(
         this.Session.Lobby = lobby;
         
         logger.LogInformation("CreateLobby {Username}", this.Session.User.Name);
-        return lobby.ToDto();
+        var lobbyDto = lobby.ToDto();
+        await this.Clients.Caller.SetLobby(lobbyDto);
+        await this.Groups.AddToGroupAsync(
+            this.Context.ConnectionId,
+            this.Session.Lobby.Id.ToString());
+        return lobbyDto;
     }
 
     public async Task<LobbyDto?> JoinLobby(Guid lobbyId)
     {
         if (this.Session.Lobby is not null)
         {
-            await this.LeaveCurrentLobby();
+            if (lobbyId != this.Session.Lobby.Id)
+            {
+                await this.LeaveCurrentLobby();
+            }
+            else
+            {
+                var existingLobbyDto = this.Session.Lobby.ToDto();
+                await this.Clients.Caller.SetLobby(existingLobbyDto);
+                return existingLobbyDto;
+            }
         }
         
         if (!lobbyContainer.Lobbies.TryGetValue(lobbyId, out var lobby))
@@ -93,6 +117,9 @@ public class LobbyHub(
         lobby.Join(this.Session.User);
         this.Session.Lobby = lobby;
         
+        lobby.Users[this.Session.User.Id].Active = true;
+        await this.LobbyGroup!.UserActive(this.Session.User.Id, true);
+        
         this.LobbyGroup?.UserJoined(this.Session.User.ToDto());
         await this.Groups.AddToGroupAsync(this.Context.ConnectionId, lobbyId.ToString());
         
@@ -100,8 +127,10 @@ public class LobbyHub(
         await this.Clients.Caller.SetMessages(lobby.Messages.Select(m => m.ToDto()).ToList());
         
         logger.LogInformation("JoinLobby {Username}", this.Session.User.Name);
-
-        return lobby.ToDto();
+        
+        var lobbyDto = lobby.ToDto();
+        await this.Clients.Caller.SetLobby(lobbyDto);
+        return lobbyDto;
     }
 
     public async Task LeaveCurrentLobby()
@@ -149,12 +178,14 @@ public class LobbyHub(
             await this.LobbyGroup.UserLeft(this.Session.User.ToDto());
         }
         
+        logger.LogInformation("LeaveCurrentLobby {Username}", this.Session.User.Name);
+        this.Session.Lobby = null;
+        await this.Clients.Caller.SetLobby(null);
+        
         if (lobby.Users.Count == 0)
         {
             lobbyContainer.RemoveLobby(lobby.Id);
+            logger.LogInformation("Lobby {LobbyId} was removed because everyone left it", lobby.Id);
         }
-        
-        logger.LogInformation("LeaveCurrentLobby {Username}", this.Session.User.Name);
-        this.Session.Lobby = null;
     }
 }

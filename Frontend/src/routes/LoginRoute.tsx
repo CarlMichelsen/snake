@@ -4,7 +4,7 @@ import {AuthClient} from "../util/client/authClient.ts";
 import {useQueryClient} from "@tanstack/react-query";
 
 // This is not an actual route - this page will replace any page if the user is not logged in.
-const Login: FC = () => {
+const LoginRoute: FC = () => {
     const queryClient = useQueryClient();
     
     const [username, setUsername] = useState<string>("");
@@ -41,4 +41,4 @@ const Login: FC = () => {
     );
 }
 
-export default Login;
+export default LoginRoute;

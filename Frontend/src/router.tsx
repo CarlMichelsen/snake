@@ -2,28 +2,28 @@
     createBrowserRouter,
     type RouteObject,
 } from "react-router";
-import Home from "./routes/Home.tsx";
-import NotFound from "./routes/NotFound.tsx";
-import Lobby from "./routes/Lobby.tsx";
+import HomeRoute from "./routes/HomeRoute.tsx";
+import NotFoundRoute from "./routes/NotFoundRoute.tsx";
+import LobbyRoute from "./routes/LobbyRoute.tsx";
 
 const routes: RouteObject[] = [
     {
         path: "",
-        element: <Home />,
+        element: <HomeRoute />,
     },
     {
         path: "lobby",
-        element: <Lobby />,
+        element: <LobbyRoute />,
         children: [
             {
                 path: ":id",
-                element: <Lobby />,
+                element: <LobbyRoute />,
             },
         ]
     },
     {
         path: "*",
-        element: <NotFound />
+        element: <NotFoundRoute />
     }
 ];
 

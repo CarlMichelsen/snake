@@ -1,9 +1,7 @@
-﻿using Presentation.Auth.Dto;
-
-namespace Presentation.Hub.Lobby.Dto;
+﻿namespace Presentation.Hub.Lobby.Dto;
 
 public record LobbyDto(
     Guid Id,
-    UserDto LobbyLeader,
+    Guid LobbyLeaderId,
     List<ChatMessageDto> Messages,
-    Dictionary<Guid, UserDto> Users);
+    Dictionary<Guid, UserConnectionDto> Users);

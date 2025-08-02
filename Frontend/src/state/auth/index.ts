@@ -2,7 +2,7 @@
 import {type User} from "../../model/user.ts";
 
 // Define a type for the slice state
-type AuthState = {
+export type AuthState = {
     status: "pending"|"loggedIn"|"loggedOut";
     user: User|null;
 }

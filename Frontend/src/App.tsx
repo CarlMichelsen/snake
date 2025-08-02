@@ -3,7 +3,7 @@ import {type FC, type ReactNode, useEffect} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {AuthClient} from "./util/client/authClient.ts";
 import {login, logout} from "./state/auth";
-import Login from "./routes/Login.tsx";
+import LoginRoute from "./routes/LoginRoute.tsx";
 
 
 type AppProps = {
@@ -37,7 +37,7 @@ const App: FC<AppProps> = ({ children }) => {
         case "loggedIn":
             return <div className="container mx-auto">{children}</div>;
         case "loggedOut":
-            return <div className="container mx-auto"><Login /></div>;
+            return <div className="container mx-auto"><LoginRoute /></div>;
         case "pending":
             return null;
         default:
