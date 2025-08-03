@@ -8,9 +8,10 @@ public static class ConfigurationExtensions
         where TOptions : class, IConfigurationOptions
     {
         builder.Services
-            .AddOptionsWithValidateOnStart<TOptions>()
+            .AddOptions<TOptions>()
             .Bind(builder.Configuration.GetSection(TOptions.SectionName))
-            .ValidateDataAnnotations();
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return builder;
     }

@@ -34,4 +34,6 @@ app.UseOutputCache();
 
 app.LogStartup();
 
+app.Services.GetRequiredService<ILogger<SimpleLoginMiddleware>>().LogCritical("eee");
+
 app.Run();

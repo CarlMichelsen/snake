@@ -27,7 +27,7 @@ public static class Dependencies
             optional: builder.Environment.IsDevelopment(),
             reloadOnChange: false);
         builder
-            .AddValidatedOptions<ApplicationOptions>();
+            .AddValidatedOptions<SnakeOptions>();
         builder.ApplicationUseSerilog();
         
         // Middleware

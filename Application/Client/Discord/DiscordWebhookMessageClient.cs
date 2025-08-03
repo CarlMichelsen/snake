@@ -7,14 +7,14 @@ namespace Application.Client.Discord;
 
 public class DiscordWebhookMessageClient(
     HttpClient httpClient,
-    IOptions<ApplicationOptions> options) : IDiscordWebhookMessageClient
+    IOptions<SnakeOptions> options) : IDiscordWebhookMessageClient
 {
     public async Task SendMessageAsync(
         WebhookMessage message,
         CancellationToken cancellationToken = default)
     {
         var response = await httpClient.PostAsJsonAsync(
-            options.Value.DiscordWebhookWebhook.Url,
+            options.Value.DiscordWebhook.Url,
             message,
             cancellationToken);
         response.EnsureSuccessStatusCode();
