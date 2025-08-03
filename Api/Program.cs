@@ -12,7 +12,10 @@ var app = builder.Build();
 
 app.UseConfiguredStaticFiles();
 
-app.UseCors();
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors();
+}
 
 app.UseMiddleware<SimpleLoginMiddleware>();
 
@@ -33,7 +36,5 @@ app.MapApplicationEndpoints();
 app.UseOutputCache();
 
 app.LogStartup();
-
-app.Services.GetRequiredService<ILogger<SimpleLoginMiddleware>>().LogCritical("eee");
 
 app.Run();
