@@ -10,19 +10,30 @@ public static class GarrysModEndpoints
     {
         var gmodGroup = endpoints.MapGroup("gmod");
 
-        gmodGroup.MapPost("RequestImage", ([FromServices] IGarrysModImageHandler handler, [FromBody] ImageRequestDto requestDto) =>
+        gmodGroup.MapPost("RequestImage", (
+                [FromServices] IGarrysModImageHandler handler,
+                [FromBody] ImageRequestDto requestDto) =>
             handler.RequestImage(requestDto));
         
-        gmodGroup.MapGet("RequestImage", ([FromServices] IGarrysModImageHandler handler, [AsParameters] ImageRequestDto requestDto) =>
+        gmodGroup.MapGet("RequestImage", (
+                [FromServices] IGarrysModImageHandler handler,
+                [AsParameters] ImageRequestDto requestDto) =>
             handler.RequestImage(requestDto));
 
-        gmodGroup.MapGet("GetImage/{imageId}", ([FromServices] IGarrysModImageHandler handler, [FromRoute] Guid imageId) =>
+        gmodGroup.MapGet("GetImage/{imageId}", (
+                [FromServices] IGarrysModImageHandler handler,
+                [FromRoute] Guid imageId) =>
             handler.GetImage(imageId: imageId));
         
-        gmodGroup.MapGet("GetImage/{imageId}/{chunk}", ([FromServices] IGarrysModImageHandler handler, [FromRoute] Guid imageId, [FromRoute] int chunk) =>
-            handler.GetImageChunk(imageId, chunk));
+        gmodGroup.MapGet("GetImage/{imageId}/{skip}/{take}", (
+                [FromServices] IGarrysModImageHandler handler,
+                [FromRoute] Guid imageId,
+                [FromRoute] int skip,
+                [FromRoute] int take) =>
+            handler.GetImageChunk(imageId, skip, take));
         
-        gmodGroup.MapGet("GetImage", ([FromServices] IGarrysModImageHandler handler) =>
+        gmodGroup.MapGet("GetImage", (
+                [FromServices] IGarrysModImageHandler handler) =>
             handler.GetImages());
 
         return gmodGroup;

@@ -19,7 +19,6 @@ public class GarrysModImageHandler(ImageService imageService) : IGarrysModImageH
         return new ImageResponseDto(
             ImageId: image.ImageId,
             Size: new SizeDto(image.ImageXSize, image.ImageYSize),
-            ChunkCount: image.Pixels.Length / image.ChunkSize,
             ImageUrl: image.Source);
     }
 
@@ -34,7 +33,6 @@ public class GarrysModImageHandler(ImageService imageService) : IGarrysModImageH
         return Task.FromResult(new ImageResponseDto(
             ImageId: image.ImageId,
             Size: new SizeDto(image.ImageXSize, image.ImageYSize),
-            ChunkCount: image.Pixels.Length / image.ChunkSize,
             ImageUrl: image.Source));
     }
 
@@ -45,12 +43,11 @@ public class GarrysModImageHandler(ImageService imageService) : IGarrysModImageH
             .Select(i => new ImageResponseDto(
                 ImageId: i.ImageId,
                 Size: new SizeDto(i.ImageXSize, i.ImageYSize),
-                ChunkCount: i.Pixels.Length / i.ChunkSize,
                 ImageUrl: i.Source))
             .ToList());
     }
 
-    public Task<string> GetImageChunk(Guid imageId, int chunk)
+    public Task<string> GetImageChunk(Guid imageId, int skip, int take)
     {
         var image = GarrysModImageHolder.GetImage(imageId);
         if (image is null)
@@ -59,8 +56,8 @@ public class GarrysModImageHandler(ImageService imageService) : IGarrysModImageH
         }
 
         var chunks = image.Pixels
-            .Skip(chunk * image.ChunkSize)
-            .Take(image.ChunkSize)
+            .Skip(skip)
+            .Take(take)
             .Select(c => c.ToString());
 
         return Task.FromResult(string.Join(',', chunks));

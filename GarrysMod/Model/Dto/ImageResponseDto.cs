@@ -3,5 +3,4 @@
 public record ImageResponseDto(
     Guid ImageId,
     SizeDto Size,
-    int ChunkCount,
     Uri ImageUrl);

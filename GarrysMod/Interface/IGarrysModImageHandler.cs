@@ -10,5 +10,5 @@ public interface IGarrysModImageHandler
     
     Task<List<ImageResponseDto>> GetImages();
 
-    Task<string> GetImageChunk(Guid imageId, int chunk);
+    Task<string> GetImageChunk(Guid imageId, int skip, int take);
 }

@@ -7,8 +7,6 @@ public class GarrysModImage
     public required int ImageXSize { get; init; }
     
     public required int ImageYSize { get; init; }
-
-    public int ChunkSize => this.Pixels.Length / this.ImageXSize;
     
     public required Uri Source { get; init; }
     
