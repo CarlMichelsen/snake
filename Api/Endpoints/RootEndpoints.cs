@@ -15,6 +15,8 @@ public static class RootEndpoints
 
         apiGroup.MapAuthEndpoints();
         
+        apiGroup.MapGarrysModEndpoints();
+        
         apiGroup.MapGet("/", ([FromServices] ILogger<Program> logger) => "Hello World!").RequireAuthorization();
 
         return endpoints;

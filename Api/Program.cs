@@ -2,11 +2,14 @@ using Api;
 using Api.Endpoints;
 using Api.Extensions;
 using Api.Middleware;
+using GarrysMod;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Dependencies
 builder.RegisterSnakeDependencies();
+
+builder.RegisterGarrysModDependencies();
 
 var app = builder.Build();
 
