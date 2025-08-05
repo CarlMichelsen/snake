@@ -13,4 +13,6 @@ public class GarrysModImage
     public required Uri Source { get; init; }
     
     public required ImagePixel[] Pixels { get; init; } = [];
+    
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
 }

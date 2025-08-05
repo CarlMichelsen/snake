@@ -7,6 +7,8 @@ public static class GarrysModImageHolder
     private const int MaxImages = 20;
     
     private static List<GarrysModImage> images = [];
+    
+    public static IReadOnlyList<GarrysModImage> Images { get; } = images;
 
     public static void AddImage(GarrysModImage newImage)
     {

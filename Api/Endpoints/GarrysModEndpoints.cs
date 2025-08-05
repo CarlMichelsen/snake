@@ -21,6 +21,9 @@ public static class GarrysModEndpoints
         
         gmodGroup.MapGet("GetImage/{imageId}/{chunk}", ([FromServices] IGarrysModImageHandler handler, [FromRoute] Guid imageId, [FromRoute] int chunk) =>
             handler.GetImageChunk(imageId, chunk));
+        
+        gmodGroup.MapGet("GetImage", ([FromServices] IGarrysModImageHandler handler) =>
+            handler.GetImages());
 
         return gmodGroup;
     }

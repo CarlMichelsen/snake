@@ -7,6 +7,8 @@ public interface IGarrysModImageHandler
     Task<ImageResponseDto> RequestImage(ImageRequestDto imageRequest);
 
     Task<ImageResponseDto> GetImage(Guid imageId);
+    
+    Task<List<ImageResponseDto>> GetImages();
 
     Task<string> GetImageChunk(Guid imageId, int chunk);
 }

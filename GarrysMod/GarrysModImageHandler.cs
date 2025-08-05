@@ -37,7 +37,19 @@ public class GarrysModImageHandler(ImageService imageService) : IGarrysModImageH
             ChunkCount: image.Pixels.Length / image.ChunkSize,
             ImageUrl: image.Source));
     }
-    
+
+    public Task<List<ImageResponseDto>> GetImages()
+    {
+        return Task.FromResult(GarrysModImageHolder
+            .Images
+            .Select(i => new ImageResponseDto(
+                ImageId: i.ImageId,
+                Size: new SizeDto(i.ImageXSize, i.ImageYSize),
+                ChunkCount: i.Pixels.Length / i.ChunkSize,
+                ImageUrl: i.Source))
+            .ToList());
+    }
+
     public Task<string> GetImageChunk(Guid imageId, int chunk)
     {
         var image = GarrysModImageHolder.GetImage(imageId);
